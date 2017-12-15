@@ -1,0 +1,137 @@
+﻿@model ChatRoom
+
+@{
+    ViewData["Title"] = "Index";
+    var nickname = @ViewData["Nickname"].ToString();
+    var roomId = @Model.Id;
+}
+
+
+
+<div class="row">
+    <div class="chat">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+
+            <div id="chat-area">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title text-center">@Model.Name</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <ul id="messages" class="list-unstyled"></ul>
+
+                        <div class="clear">
+                        </div>
+
+                        <form id="sendmessage" action="#" class="form-inline">
+                            <input type="text" id="new-message" class="form-control input-lg" />
+                            <input type="submit" id="send" value="Send" class="btn btn-primary btn-lg" />
+                        </form>
+
+                    </div>
+                    <div class="panel-footer">
+                        <strong> @Html.ActionLink(System.Net.WebUtility.HtmlDecode("&laquo; Back to Room List"), "Index", "Room")</strong>
+                    </div>
+
+                </div>
+
+            </div>
+       </div>
+
+            <div class="col-md-2"></div>
+   </div>
+</div>
+
+<script src="~/js/signalr-clientES5-1.0.0-alpha2-final.min.js"></script>
+
+<script>
+    let transportType = signalR.TransportType.WebSockets;
+    let logger = new signalR.ConsoleLogger(signalR.LogLevel.Information);
+    let connection = new signalR.HubConnection('/chat', { transport: transportType, logger: logger });
+
+
+    connection.onclose(e =>
+    {
+        if (e)
+        {
+            appendLine('Connection closed with error: ' + e, 'red');
+        }
+        else
+        {
+            appendLine('Disconnected', 'green');
+        }
+    });
+
+    connection.on('GetMessage', (userName, room, message) =>
+    {
+        var time = getTime();
+        var roomId = '@roomId';
+
+        console.log(userName + ' (' + time + '): ' + message);
+
+        if (room == roomId) {
+            var nameElement = document.createElement('b');
+            nameElement.innerText = '(' + time + ') ' + userName + ':';
+
+            var msgElement = document.createElement('span');
+
+            msgElement.innerText = ' ' + message;
+
+            var child = document.createElement('li');
+            child.appendChild(nameElement);
+            child.appendChild(msgElement);
+            document.getElementById('messages').appendChild(child);
+
+            if ($('#messages li').length > 30)
+            {
+                $('#messages li').first().remove();
+            }
+        }
+        else
+        {
+            console.log('Received message filtered as it does not belong to this room. Current room: ' + roomId + ' target room: ' + room);
+        }
+
+    });
+
+    connection.start().catch(err => appendLine(err, 'red'));
+
+    document.getElementById('sendmessage').addEventListener('submit', event =>
+    {
+        let data = document.getElementById('new-message').value;
+        var nickname = '@nickname';
+        var roomId = '@roomId';
+        connection.invoke('SendMessage', nickname, roomId, data).catch(err => appendLine(err, 'red'));
+        document.getElementById('new-message').value = '';
+        event.preventDefault();
+    });
+
+    function appendLine(line, color)
+    {
+        let child = document.createElement('li');
+        if (color)
+        {
+            child.style.color = color;
+        }
+        child.innerText = line;
+        document.getElementById('messages').appendChild(child);
+    };
+
+    function getTime()
+    {
+        var d = new Date();
+        var time = addZero(d.getHours()) + ":" + addZero(d.getMinutes()) + ":" + addZero(d.getSeconds());
+        return time;
+    };
+
+    function addZero(i)
+    {
+        if (i < 10) {
+            i = "0" + i;
+        }
+        return i;
+    };
+
+</script>

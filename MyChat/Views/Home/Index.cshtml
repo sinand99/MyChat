@@ -1,0 +1,31 @@
+﻿@model ChatUser
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="login">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">Login</div>
+                <div class="panel-body">
+                    
+                    <form asp-controller="Home" asp-action="Index" method="post" class="form-inline">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <input asp-for="Nickname" class="form-control" placeholder="Enter your nickname" />
+                        <input type="submit" value="Proceed" class="btn btn-primary" />
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

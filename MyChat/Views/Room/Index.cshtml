@@ -1,0 +1,59 @@
+﻿@model ChatRoomManager
+
+@{
+    ViewData["Title"] = "Index";
+    string currentNickname = ViewData["Nickname"].ToString();
+
+}
+
+<div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+
+            <h3>Welcome @currentNickname !</h3>
+            <h4>Please select a room to chat</h4>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Current Rooms</h3>
+                </div>
+                <div class="panel-body">
+
+
+                @if (Model.RoomList.Count > 0)
+                {
+                    <table class="table border">
+                        <tr>
+                            @*<th>ID</th>*@
+                            <th>Name</th>
+                            <th></th>
+                        </tr>
+                        @foreach (var item in Model.RoomList)
+                        {
+                        <tr>
+                            @*<td>@item.Id</td>*@
+                            <td><p class="lead">@item.Name</p></td>
+                            <td>@Html.ActionLink("Join", "Join", "Room", new { id = @item.Id }, new { @class = "btn btn-primary" })</td>
+                        </tr>
+                        }
+                    </table>
+                }
+                else
+                {
+                    <h5>No chat rooms. Click the button below to create one.</h5>
+                }
+
+                </div>
+                <div class="panel-footer">
+
+                    <p>
+                        @Html.ActionLink("Create new room", "Create", "Room", null, new { @class = "btn btn-primary" })
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4"></div>
+</div>
+
